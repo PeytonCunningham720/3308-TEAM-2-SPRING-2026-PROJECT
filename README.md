@@ -11,7 +11,7 @@
 
 | Name | GitHub Username | Email |
 |------|----------------|-------|
-| Peyton Cunningham | peytoncunningham720 | GrokCO303@gmail.com |
+| Peyton Cunningham | peytoncunningham720 | peytoncunningham720@gmail.com |
 | Bri Martinez | bmartinez-web | briannarosemartinez@gmail.com |
 | Stephen Enriquez | latencies | sten8791@colorado.edu |
 | Jake Mooradian | JBMooradian | jbmooradian@gmail.com |
