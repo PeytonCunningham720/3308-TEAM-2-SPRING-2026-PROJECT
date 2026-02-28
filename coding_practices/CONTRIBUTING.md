@@ -1,7 +1,7 @@
 # Team Coding Practices & Git Workflow
-### CSCI 3308 — Team 2 | Spring 2026
+### CSCB 3308 — Team 2 | Spring 2026
 
-This document defines the shared standards every team member follows when contributing to this project. Consistency here keeps merge conflicts minimal and the codebase readable for everyone.
+This document defines the shared standards every team member follows when contributing to this project.
 
 ---
 
@@ -22,15 +22,14 @@ Follow this exact sequence every time you go to push to GitHub:
 ```
 1. git checkout main
 2. git pull
-3. git checkout -b your-branch
+3. git checkout -b "your-branch"
 4. work in your environment
 5. git add .
 6. git commit -m "Explanation of what has been changed and added"
-7. git push origin your-branch
-8. Open a Pull Request at https://github.com/PeytonCunningham720/3308-TEAM-2-SPRING-2026-PROJECT → request a review
+7. git push origin "your-branch"
+8. Open a Pull Request at https://github.com/PeytonCunningham720/3308-TEAM-2-SPRING-2026-PROJECT
+    request a review
 ```
-
-**Why pull first?** If you start working on stale code and someone else pushed changes, you'll have conflicts when you try to merge. Pulling first keeps your local copy current and saves everyone headaches.
 
 ---
 
