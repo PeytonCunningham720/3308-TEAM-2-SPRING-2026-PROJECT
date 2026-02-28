@@ -1,5 +1,5 @@
 # Team Coding Practices & Git Workflow
-### CSCB 3308 — Team 2 | Spring 2026
+### CSPB 3308 — Team 2 | Spring 2026
 
 This document defines the shared standards every team member follows when contributing to this project.
 
