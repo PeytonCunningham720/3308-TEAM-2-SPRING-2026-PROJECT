@@ -1,12 +1,10 @@
 ##### Input
 
 
-
 Upload module
 
 * “Upload audio file” button
 * List supported formats (e.g., WAV, MP3, M4A)
-
 
 
 Paste-a-link module (optional)
@@ -15,17 +13,13 @@ Paste-a-link module (optional)
 * Validation feedback (“This link doesn’t contain audio”)
 
 
-
 Include:
 
 * Short instructions (“Upload or paste a link to a bird call”)
 
-
-
 ##### 
 
 ##### Processing
-
 
 
 Progress indicator
@@ -33,24 +27,18 @@ Progress indicator
 * Display text : “Analyzing sample.”
 
 
-
 Error messaging
 
 * “We couldn’t detect a bird call. Try a clearer sample.”
-
 
 
 ##### 
 
 ##### Results
 
-
-
 Top 5 matches list
 
 * Highlight the top match - “Most likely match”
-
-
 
 Result card to include:
 
@@ -60,9 +48,7 @@ Result card to include:
 * Short description
 
 
-
 ###### 
-
 ###### *Technical UI components*
 
 * Simple navigation (Home, About, How it Works)
