@@ -1,162 +1,118 @@
 """
 Bird Call Similarity Ranker
-Sprint 1: Peyton Cunningham
+Sprint 2: Peyton Cunningham
 
 Pipeline:
     [Dataset (Jake)] > [Spectrograms (Brie)] > [THIS MODULE] > [UI (Stephen)]
-
-What this does:
-    Takes an input spectrogram and compares it against 5 reference spectrograms.
-    Returns a ranked list of birds ordered from most to least similar.
-
-Dependencies:
-    numpy
-    scipy
 """
+
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # adds project root to path so all modules are found
 
 import numpy as np
 from scipy.signal import correlate
-
-# CORE FUNCTIONS
-
-def normalize_spectrogram(spec):
-    """Scale all values in a spectrogram to between 0 and 1."""
-
-    min_val = spec.min()                                    # lowest value in array
-    max_val = spec.max()                                    # highest value in array
-
-    if max_val == min_val:                                  # flat or silent recording
-        return np.zeros_like(spec, dtype = float)           # return all zeros to avoid divide by zero
-
-    return (spec - min_val) / (max_val - min_val)           # shift and scale to 0 to 1
+from spectrogram.spectrogram_generator import generate_mel_spectrogram           # Brie's function
 
 
-def resize_to_match(spec_a, spec_b):
+# PATHS
+
+REFERENCE_DIR = "data/reference"    # one subfolder per bird, each with 3 reference recordings
+TEST_DIR      = "data/test"         # one subfolder per bird, each with 1 test recording
+
+
+# LOAD FILES
+
+def get_reference_files():
+    """Scan data/reference/ and return all audio files grouped by bird."""
+    files = {}
+    for bird in sorted(os.listdir(REFERENCE_DIR)):                              # loop through each bird folder
+        path = os.path.join(REFERENCE_DIR, bird)
+        if not os.path.isdir(path):                                             # skip loose files
+            continue
+        audio = [os.path.join(path, f) for f in sorted(os.listdir(path))
+                 if f.endswith(".mp3") or f.endswith(".wav")]                   # only grab audio files
+        if audio:
+            files[bird] = audio
+    return files
+
+
+def get_test_files():
+    """Scan data/test/ and return one test file per bird."""
+    files = {}
+    for bird in sorted(os.listdir(TEST_DIR)):                                   # loop through each bird folder
+        path = os.path.join(TEST_DIR, bird)
+        if not os.path.isdir(path):                                             # skip loose files
+            continue
+        audio = [os.path.join(path, f) for f in sorted(os.listdir(path))
+                 if f.endswith(".mp3") or f.endswith(".wav")]
+        if audio:
+            files[bird] = audio[0]                                              # only one test file per bird
+    return files
+
+
+# COMPARISON
+
+def normalize(spec):
+    """Scale spectrogram values to 0 to 1 so volume does not affect the score."""
+    min_val, max_val = spec.min(), spec.max()
+    if max_val == min_val:
+        return np.zeros_like(spec, dtype = float)                               # flat recording, return zeros
+    return (spec - min_val) / (max_val - min_val)
+
+
+def crop_to_match(a, b):
     """Crop both spectrograms to the same shape before comparing."""
-
-    min_rows = min(spec_a.shape[0], spec_b.shape[0])        # shorter height of the two
-    min_cols = min(spec_a.shape[1], spec_b.shape[1])        # shorter width of the two
-
-    return spec_a[:min_rows, :min_cols], spec_b[:min_rows, :min_cols]   # crop both to match
+    rows = min(a.shape[0], b.shape[0])
+    cols = min(a.shape[1], b.shape[1])
+    return a[:rows, :cols], b[:rows, :cols]
 
 
-def cross_correlation_score(input_spec, reference_spec):
+def score(input_spec, reference_spec):
     """Return a similarity score between two spectrograms using cross correlation."""
-
-    a = normalize_spectrogram(input_spec)                   # normalize input
-    b = normalize_spectrogram(reference_spec)               # normalize reference
-
-    a, b = resize_to_match(a, b)                            # make sure shapes match
-
-    a_flat = a.flatten()                                    # collapse 2D to 1D for scipy
-    b_flat = b.flatten()                                    # collapse 2D to 1D for scipy
-
-    correlation = correlate(a_flat, b_flat, mode = "valid") # compare the two signals
-    score = float(np.max(correlation))                      # peak value is the similarity score
-
-    return score                                            # higher score means more similar
-
-# RANKING (main function the rest of the pipeline calls)
-
-def rank_birds(input_spec, reference_specs, method = "cross_correlation"):
-    """
-    Compare input spectrogram against all references and return ranked results.
-
-    Arguments:
-        input_spec:      2D numpy array, the recording to identify
-        reference_specs: dict of {bird name: 2D numpy array}
-        method:          scoring method, "cross_correlation"
-
-    Returns:
-        List of dicts sorted best match first:
-        [{"rank": 1, "bird": "Robin", "score": 245.3}, ...]
-    """
-
-    scores = {}                                             # store scores for each bird
-
-    for bird_name, ref_spec in reference_specs.items():     # loop through each reference bird
-        scores[bird_name] = cross_correlation_score(input_spec, ref_spec)
-
-    ranked = sorted(scores.items(), key = lambda x: x[1], reverse = True)  # sort highest score first
-
-    results = [
-        {"rank": i + 1, "bird": bird, "score": round(score, 4)}
-        for i, (bird, score) in enumerate(ranked)          # build result dicts with rank numbers
-    ]
-
-    return results
+    a, b = normalize(input_spec), normalize(reference_spec)
+    a, b = crop_to_match(a, b)
+    correlation = correlate(a.flatten(), b.flatten(), mode = "valid")           # slide signals over each other and measure overlap
+    return float(np.max(correlation))                                           # peak overlap is the similarity score
 
 
-def print_results(results, input_label = "Input"):
-    """Print ranked results to console. Placeholder until Stephen's UI is ready."""
+def rank_birds(input_spec, reference_files):
+    """Score input against all reference birds and return ranked results."""
+    scores = {}
+    for bird, ref_paths in reference_files.items():
+        bird_scores = [score(input_spec, generate_mel_spectrogram(p)) for p in ref_paths]  # score against all 3 references
+        scores[bird] = sum(bird_scores) / len(bird_scores)                      # average the 3 scores for this bird
 
-    print(f"\n{'=' * 45}")
-    print(f"  Bird ID Results for: {input_label}")
-    print(f"{'=' * 45}")
+    ranked = sorted(scores.items(), key = lambda x: x[1], reverse = True)      # sort highest score first
+    return [{"rank": i + 1, "bird": bird, "score": round(s, 4)} for i, (bird, s) in enumerate(ranked)]
 
-    for entry in results:
-        print(f"  #{entry['rank']}  {entry['bird']:<25} score: {entry['score']}")  # one line per bird
-    
-    print(f"{'=' * 45}\n")
 
-# INTEGRATION HOOK (what teammates import and call)
-
-def compare_to_references(input_spectrogram, reference_spectrograms):
-    """
-    Main entry point for the pipeline. Stephen's UI and Brie's spectrogram module call this.
-
-    Arguments:
-        input_spectrogram:      2D numpy array from Brie's librosa module  <-- comes from Brie
-        reference_spectrograms: dict of {bird name: 2D numpy array}        <-- comes from Jake and Brie
-
-    Returns:
-        Ranked list (see rank_birds return format above)
-    """
-
-    if not isinstance(input_spectrogram, np.ndarray):          # make sure input is the right type
+def compare_to_references(input_spectrogram, reference_files):
+    """Main entry point for Stephen's UI."""
+    if not isinstance(input_spectrogram, np.ndarray):
         raise TypeError("input_spectrogram must be a numpy array")
-
-    if input_spectrogram.ndim != 2:                            # spectrograms must be 2D
+    if input_spectrogram.ndim != 2:
         raise ValueError(f"Expected 2D array, got shape {input_spectrogram.shape}")
-
-    if len(reference_spectrograms) == 0:                       # nothing to compare against
-        raise ValueError("reference_spectrograms dict is empty")
-
-    return rank_birds(input_spectrogram, reference_spectrograms)
-
-# TEMPORARY: mock data and demo (remove once Jake and Brie's modules are ready)
-
-def generate_mock_spectrogram(seed = 0, shape = (128, 128)):
-    """Generate a fake spectrogram for testing. Replace with real data from Jake and Brie."""
-
-    rng = np.random.default_rng(seed)                      # seed makes output reproducible
-    return rng.random(shape).astype(np.float32)            # random values shaped like a real spectrogram
+    if len(reference_files) == 0:
+        raise ValueError("reference_files is empty")
+    return rank_birds(input_spectrogram, reference_files)
 
 
-def run_demo():
-    """Run the ranker with fake data. For testing only, remove when real audio is available."""
-
-    print("\n[DEMO] Using placeholder spectrograms. Replace with real data from Jake and Brie.\n")
-
-    # PLACEHOLDER bird names below. Real names come from Jake's dataset.
-    demo_birds = [
-        "Bird A (placeholder)",
-        "Bird B (placeholder)",
-        "Bird C (placeholder)",
-        "Bird D (placeholder)",
-        "Bird E (placeholder)",
-    ]
-
-    reference_specs = {
-        bird: generate_mock_spectrogram(seed = i)           # one fake spectrogram per bird
-        for i, bird in enumerate(demo_birds)
-    }
-
-    test_input = generate_mock_spectrogram(seed = 0)        # seed 0 matches Bird A, should rank first
-
-    results = rank_birds(test_input, reference_specs)       # run the ranker
-    print_results(results, input_label = "Test Input")      # print output to console
-
+# RUN
 
 if __name__ == "__main__":
-    run_demo()                                              # runs demo when file is executed directly
+    reference_files = get_reference_files()                                     # load all reference birds from data/reference/
+    test_files      = get_test_files()                                          # load all test birds from data/test/
+
+    print(f"\n[PIPELINE] Testing {len(test_files)} birds against {len(reference_files)} references\n")
+
+    for test_bird, test_path in test_files.items():                             # loop through every test bird
+        test_spec = generate_mel_spectrogram(test_path)                         # convert test audio to spectrogram
+        results   = compare_to_references(test_spec, reference_files)           # rank against all references
+        top_match = results[0]["bird"]
+        correct   = "CORRECT" if top_match == test_bird else "WRONG"
+
+        print(f"  Tested: {test_bird:<30} Top match: {top_match:<30} [{correct}]")
+        for entry in results:
+            print(f"    #{entry['rank']}  {entry['bird']:<30} score: {entry['score']}")
+        print()
