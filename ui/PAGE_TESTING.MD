@@ -33,7 +33,6 @@ None.
 ## Link Destinations
 - '/upload'  
 - '/about'  
-- '/library' (optional future page)
 
 ## Tests for Verifying Rendering
 1. Page loads with title “Cawler ID”.  
@@ -70,6 +69,7 @@ None.
 3. Submit button labeled “Analyze Bird Call” is visible.  
 4. Uploading no file triggers validation error.  
 5. Uploading a valid file redirects to '/results'.
+6. Uploading an invalid file type results in error page.
 
 ---
 
@@ -121,7 +121,7 @@ This page acts as a mini field‑guide entry for each bird species.
 - 'bird_name' (URL parameter)
 
 ## Data Needed to Render
-From a bird database (JSON or Python dict):
+From a bird database in SQL:
 - Bird name  
 - Description  
 - Image path  
@@ -133,11 +133,11 @@ From a bird database (JSON or Python dict):
 - '/upload'
 
 ## Tests for Verifying Rendering
-1. Page loads correct bird name from URL.  
+1. Page loads correct bird information from URL.  
 2. Bird image renders correctly.  
 3. Audio playback element appears.  
 4. Reference spectrogram loads.  
-5. Invalid bird name returns 404 or fallback page.
+
 
 ---
 
