@@ -112,3 +112,68 @@ def log_identification(user_id: int, species_id: int,
             new_id = cur.fetchone()[0]
         conn.commit()
     return new_id
+
+
+# ---------------------------------------------------------------------------
+# User Management
+# ---------------------------------------------------------------------------
+
+def get_user_by_email(email: str) -> dict | None:
+    """
+    Fetch a user record by email address.
+
+    Parameters
+    ----------
+    email : str
+        The user's email.
+
+    Returns
+    -------
+    dict with keys: id, username, email, password_hash, created_at
+    None if no matching user is found.
+    """
+    sql = """
+        SELECT id, username, email, password_hash, created_at
+        FROM   users
+        WHERE  email = %s
+        LIMIT  1;
+    """
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(sql, (email,))
+            row = cur.fetchone()
+            return dict(row) if row else None
+
+
+def create_user(username: str, email: str, password_hash: str) -> dict:
+    """
+    Create a new user account.
+
+    Parameters
+    ----------
+    username : str
+        Unique display name.
+    email : str
+        Unique email address.
+    password_hash : str
+        Pre-hashed password (hash using werkzeug.security before calling).
+
+    Returns
+    -------
+    dict with keys: id, username, email, created_at
+
+    Raises
+    ------
+    psycopg2.IntegrityError if username or email already exists.
+    """
+    sql = """
+        INSERT INTO users (username, email, password_hash)
+        VALUES (%s, %s, %s)
+        RETURNING id, username, email, created_at;
+    """
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(sql, (username, email, password_hash))
+            row = cur.fetchone()
+        conn.commit()
+    return dict(row) if row else {}

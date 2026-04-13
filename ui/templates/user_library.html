@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Library - Cawler ID</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!--Add nav bar-->
+<nav>
+    <a href="/">Home</a> |
+    <a href="/upload">Upload</a> |
+    <a href="/about">About</a>
+    {% if session.get('user_id') %}
+        | <a href="/library">My Library</a> |
+        Logged in as <strong>{{ session.get('username') }}</strong> |
+        <a href="/logout">Logout</a>
+    {% else %}
+        | <a href="/login">Login</a> | <a href="/register">Register</a>
+    {% endif %}
+</nav>
+<hr>
+
+<main>
+    <h1>My Identification History</h1>
+
+    {% if history %}
+        <table border="1" cellpadding="10">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Bird Identified</th>
+                    <th>Confidence Score</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in history %}
+                    <tr>
+                        <td>{{ entry.created_at }}</td>
+                        <td>
+                            <a href="{{ url_for('bird_details', bird_name=entry.common_name) }}">
+                                {{ entry.common_name }}
+                            </a>
+                        </td>
+                        <td>{{ "%.2f"|format(entry.confidence_score) }}</td>
+                        <td>
+                            <a href="{{ url_for('static', filename=entry.upload_path) }}" download>
+                                Download Audio
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No identification history yet. <a href="/upload">Upload your first bird call</a>!</p>
+    {% endif %}
+
+    <br><br>
+    <a href="/upload">Analyze another recording</a>
+</main>
+
+</body>
+</html>
