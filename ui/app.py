@@ -1,5 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, abort
 import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from database.db import get_bird_by_name
 
 from spectrogram.spectrogram_generator import plot_spectrogram, generate_mel_spectrogram
 from ranker.ranker import compare_to_references, generate_mock_spectrogram, reference_specs
@@ -57,15 +60,9 @@ def analyze():
 # 4) Bird Details Page
 @app.route('/bird/<bird_name>')
 def bird_details(bird_name):
-    # TODO: Replace with SQL lookup ***
-    bird_data = {
-        "name": bird_name,
-        "description": "Placeholder description.",
-        "image": f"birds/{bird_name}.png",
-        "audio": f"birds/{bird_name}.mp3",
-        "reference_spec": f"birds/{bird_name}_spectrogram.png"
-    }
-
+    bird_data = get_bird_by_name(bird_name)
+    if bird_data is None:
+        abort(404)
     return render_template('bird_details.html', bird=bird_data)
     
 # 5) About Page
