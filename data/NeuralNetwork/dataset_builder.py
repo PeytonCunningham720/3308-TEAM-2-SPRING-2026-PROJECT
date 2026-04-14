@@ -3,20 +3,20 @@ import numpy as np
 import os
 
 REF_ROOT = "data/reference"
-SPEC_ROOT = "data/spectrograms"
+SPEC_ROOT = "data/numpy_specs"
 
 # adapted from Peyton's LOAD FILES functions. Loops through all reference data
 def build_spectrogram_dataset():
     for root, _, files in os.walk(REF_ROOT):
         for f in files:
-            if not f.lower().endswith((".mp3", ".wav")):
+            if not f.lower().endswith((".mp3", ".m4a")):
                 continue
             audio_path = os.path.join(root, f)
-            generate_mel_spectrogram(audio_path)
+            generate_numpy_spec(audio_path)
             save_spectrogram(audio_path)
 
 # adapted from Bri's model. It now normalizes the specs and then saves them to a new dir called "spectrograms"
-def generate_mel_spectrogram(audio_path):
+def generate_numpy_spec(audio_path):
 
     # Load the audio file
     y, sr = librosa.load(audio_path, sr=None)
@@ -33,7 +33,7 @@ def generate_mel_spectrogram(audio_path):
 # saves the numpy arrays to the new directory 
 def save_spectrogram(audio_path):
 
-    spec = generate_mel_spectrogram(audio_path)
+    spec = generate_numpy_spec(audio_path)
     
     rel_path = os.path.relpath(audio_path, REF_ROOT)
     rel_path_npy = os.path.splitext(rel_path)[0] + ".npy"
