@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from dataset_builder import generate_mel_spectrogram # <- combo of Bri's spectrogram and normalizing
+from dataset_builder import generate_numpy_spec # renamed for clarity
 from nn import NeuralNetwork
 
 import sys
@@ -8,7 +8,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 MODEL_PATH = "data/model/bird_nn.npy"
 LABELS_PATH = "data/model/labels.npy"
-TARGET_COLS = 128
+TARGET_COLS = 32 # be sure this agrees with nn_trainer so there is no size conflict
+
+TESTS_PATH = "data/test" # for new loop
 
 # repeated from nn_trainer. Pads misaligned arrays, rather than cropping to match before flatten
 def flatten_spec(spec, target_cols=TARGET_COLS):
@@ -32,8 +34,7 @@ def load_model():
 # refactored from the cross-correlation function in ranker. This just uses nn.predict
 # instead of scipy.signal.correlate
 def identify_bird(audio_path):
-    """Pipeline is now mp3 path -> bird name"""
-    spec = generate_mel_spectrogram(audio_path)
+    spec = generate_numpy_spec(audio_path)
     vec = flatten_spec(spec)
     nn, labels = load_model()
 
@@ -45,11 +46,21 @@ def identify_bird(audio_path):
         for i, (idx, prob) in enumerate(ranked)
     ]
 
-if __name__ == "__main__":
+# new loop runs through all test files when program called by name
+def test_all_birds():
+    for root, _, files in os.walk(TESTS_PATH):
+        for f in files:
+            if not f.lower().endswith((".mp3", ".m4a")):
+                continue
+            audio_path = os.path.join(root, f)
+            expected_bird = os.path.basename(root)
+            results = identify_bird(audio_path)
+            top_match = results[0]["bird"]
+            correct = "CORRECT" if top_match == expected_bird else "INCORRECT"
+            print(f"\nExpected: {expected_bird} Top match: {top_match} (confidence: {results[0]['score']}) [{correct}]\n")
+            for r in results:
+                print(f"  #{r['rank']}  {r['bird']:<30} {r['score']}")
+            
 
-    # hardcoded test path. An updated entry point for ui is needed.
-    TEST_PATH = "data/test/american_robin/american_robin_test.mp3"
-    results = identify_bird(TEST_PATH)
-    print(f"\nTop match: {results[0]['bird']} (confidence: {results[0]['score']})\n")
-    for r in results:
-        print(f"  #{r['rank']}  {r['bird']:<30} {r['score']}")
+if __name__ == "__main__":
+    test_all_birds()

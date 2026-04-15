@@ -2,10 +2,10 @@ import numpy as np
 import os
 from nn import NeuralNetwork
 
-SPEC_ROOT = "data/spectrograms"
+SPEC_ROOT = "data/numpy_specs" # renamed for clarity
 MODEL_OUT = "data/model/bird_nn.npy"
 LABELS_OUT = "data/model/labels.npy"
-TARGET_COLS = 128
+TARGET_COLS = 32 # fewer target cols = fewer overall features. Make sure classifier value agrees
 
 def flatten_spec(spec, target_cols=TARGET_COLS):
     rows, cols = spec.shape
@@ -17,24 +17,27 @@ def flatten_spec(spec, target_cols=TARGET_COLS):
     return spec.flatten()
 
 def load_training_data():
-    X = [] # Array of flattened specs
-    y_raw = [] # vertical (mel-bins) Will be one-hot encoded to create bird signatures, thus "raw"
-    label_names = [] # array of spec ids
-
-    # same logic as get_reference_files() from the ranker
-    for bird in sorted(os.listdir(SPEC_ROOT)):
+    # Array of flattened specs
+    X = [] 
+    # vertical (mel-bins) Will be one-hot encoded to create bird signatures, thus "raw"
+    y_raw = [] 
+    # Sort label names for persistent order if using correlation scores & assert checkpoint ignore
+    label_names = [bird for bird in sorted(os.listdir(SPEC_ROOT))
+                   if bird != ".ipynb_checkpoints" and
+                   os.path.isdir(os.path.join(SPEC_ROOT, bird))]
+    
+    # Similar logic as get_reference_files() from the ranker
+    for bird in label_names:
         path = os.path.join(SPEC_ROOT, bird)
-        if not os.path.isdir(path):
-            continue
-        label_names.append(bird)
-        label_idx = len(label_names) - 1
-
-        for f in os.listdir(path):
-            if f.endswith(".npy"):
-                spec = np.load(os.path.join(path, f))
+        label_idx = label_names.index(bird)
+        
+        # reorganized to use new label_names assertion
+        for file in os.listdir(path):
+            if file.endswith(".npy"):
+                spec = np.load(os.path.join(path, file))
                 X.append(flatten_spec(spec))
                 y_raw.append(label_idx)
-
+                         
     X = np.array(X) # Standardize shape
     n_classes = len(label_names) # number of different bird types
 
@@ -54,15 +57,19 @@ def train_and_save():
     print(f"[TRAIN] {X.shape[0]} samples, {n_classes} classes, input dim {input_dim}")
 
     # Assert layer sizes: input -> hidden layers -> output
-    nn = NeuralNetwork([input_dim, 64, n_classes], alpha=0.01)
-    nn.fit(X, y, epochs=500, displayUpdate=50)
+    # limiting hidden layers helps with training size
+    nn = NeuralNetwork([input_dim, 18, n_classes], alpha=0.01)
+    # larger epoch count reduces loss rate to around 0.1; not bad for what we need
+    nn.fit(X, y, epochs=3500, displayUpdate=100)
 
     # Save the weights and their labels in the "model" directory
     os.makedirs("data/model", exist_ok=True)
-    np.save(MODEL_OUT, np.array(nn.W, dtype=object), allow_pickle=True)
+    np.save(MODEL_OUT, np.array(nn.W, dtype=object), allow_pickle=True) 
     np.save(LABELS_OUT, np.array(label_names))
     print(f"[SAVED] Model -> {MODEL_OUT}")
     print(f"[SAVED] Labels -> {LABELS_OUT}")
 
+
 if __name__ == "__main__":
     train_and_save()
+
