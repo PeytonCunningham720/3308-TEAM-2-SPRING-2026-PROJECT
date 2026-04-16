@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bird Details — {{ bird.name }}</title>
+    <title>Bird Details — {{ bird.common_name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -22,21 +22,21 @@
 <hr>
 
 <main>
-    <h1>{{ bird.name }}</h1>
-    
+    <h1>{{ bird.common_name }}</h1>
+    <p><em>{{ bird.scientific_name }}</em></p>
+
     <p>{{ bird.description }}</p>
-    
-    <!--Will need to update these-->
+
     <h2>Image</h2>
-    <img src="{{ url_for('static', filename=bird.image) }}" width="400">
-    
+    <img src="{{ url_for('static', filename=bird.ref_image) }}" width="400">
+
     <h2>Example Audio</h2>
     <audio controls>
-        <source src="{{ url_for('static', filename=bird.audio) }}" type="audio/mpeg">
+        <source src="{{ url_for('static', filename=bird.ref_audio_path) }}" type="audio/mpeg">
     </audio>
-    
+
     <h2>Reference Spectrogram</h2>
-    <img src="{{ url_for('static', filename=bird.reference_spec) }}" width="500">
+    <img src="{{ url_for('static', filename=bird.ref_spec_path) }}" width="500">
     
     <br><br>
     <a href="/upload">Analyze Another Call</a>
