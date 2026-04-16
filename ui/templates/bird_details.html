@@ -1,11 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<<<<<<< HEAD
-    <title>{{ bird.common_name | replace('_', ' ') | title }} — Cawler ID</title>
-=======
     <title>Bird Details — {{ bird.common_name }}</title>
->>>>>>> 645c0cbcf799c13cc6c8420db02e8db97fc762be
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -36,7 +32,6 @@
 <hr>
 
 <main>
-<<<<<<< HEAD
 
     <h1>{{ bird.common_name | replace('_', ' ') | title }}</h1>
     <h3><em>{{ bird.scientific_name }}</em></h3>
@@ -63,24 +58,6 @@
         <img src="{{ url_for('static', filename=bird.ref_spec_path) }}" width="500">
     {% endif %}
 
-=======
-    <h1>{{ bird.common_name }}</h1>
-    <p><em>{{ bird.scientific_name }}</em></p>
-
-    <p>{{ bird.description }}</p>
-
-    <h2>Image</h2>
-    <img src="{{ url_for('static', filename=bird.ref_image) }}" width="400">
-
-    <h2>Example Audio</h2>
-    <audio controls>
-        <source src="{{ url_for('static', filename=bird.ref_audio_path) }}" type="audio/mpeg">
-    </audio>
-
-    <h2>Reference Spectrogram</h2>
-    <img src="{{ url_for('static', filename=bird.ref_spec_path) }}" width="500">
-    
->>>>>>> 645c0cbcf799c13cc6c8420db02e8db97fc762be
     <br><br>
     <a href="/upload">Analyze Another Call</a>
 
