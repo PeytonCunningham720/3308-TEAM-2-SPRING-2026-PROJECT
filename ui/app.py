@@ -60,12 +60,12 @@ def register():
             return render_template('register.html', error='All fields required.')
 
         try:
-            password_hash = generate_password_hash(password)
+            password_hash = generate_password_hash(password, method='pbkdf2:sha256')
             user = create_user(username, email, password_hash)
             session['user_id'] = user['id']
             session['username'] = user['username']
             return redirect(url_for('landing'))
-        except Exception as e:
+        except Exception:
             error = 'Email or username already exists.'
             return render_template('register.html', error=error)
 

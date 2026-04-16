@@ -12,6 +12,7 @@ Expected environment variables:
 """
 
 import os
+from typing import Optional, List
 import psycopg2
 import psycopg2.extras
 
@@ -31,7 +32,7 @@ def get_connection():
 # Data Access Methods
 # ---------------------------------------------------------------------------
 
-def get_bird_by_name(common_name: str) -> dict | None:
+def get_bird_by_name(common_name: str) -> Optional[dict]:
     """
     Fetch a full species profile by common name.
 
@@ -60,7 +61,7 @@ def get_bird_by_name(common_name: str) -> dict | None:
             return dict(row) if row else None
 
 
-def get_user_history(user_id: int) -> list[dict]:
+def get_user_history(user_id: int) -> List[dict]:
     """
     Retrieve all past identifications for a logged-in user.
 
@@ -118,7 +119,7 @@ def log_identification(user_id: int, species_id: int,
 # User Management
 # ---------------------------------------------------------------------------
 
-def get_user_by_email(email: str) -> dict | None:
+def get_user_by_email(email: str) -> Optional[dict]:
     """
     Fetch a user record by email address.
 
