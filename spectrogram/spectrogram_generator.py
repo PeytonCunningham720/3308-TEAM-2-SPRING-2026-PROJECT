@@ -19,6 +19,8 @@ Dependencies:
 """
 
 import os
+import matplotlib
+matplotlib.use('Agg')
 import librosa
 import librosa.display
 import matplotlib.pyplot as plt

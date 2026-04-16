@@ -7,8 +7,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from database.db import get_bird_by_name, get_user_by_email, create_user, get_user_history, log_identification
 
 from spectrogram.spectrogram_generator import plot_spectrogram, generate_mel_spectrogram
-from similarity_model.similarity_ranker import compare_to_references, get_reference_files
-reference_specs = get_reference_files()
+import sys as _sys, os as _os
+_sys.path.insert(0, _os.path.join(_os.path.dirname(__file__), '..', 'data', 'NeuralNetwork'))
+from classifier import identify_bird
 
 app = Flask(__name__)
 # Configure uploads folder:
@@ -103,20 +104,17 @@ def analyze():
         return "No selected file", 400
 
     # Save uploaded file
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     # ("static/uploads", "raven_call.mp3") -> "static/uploads/raven_call.mp3"
     file.save(filepath)
 
-    # Generate spectrogram from uploaded audio
+    # Generate spectrogram image for display
     spec = generate_mel_spectrogram(filepath)
+    plot_spectrogram(spec, "uploaded_call")
 
-    # Save spectrogram image
-    bird_name = "uploaded_call"
-    plot_spectrogram(spec, bird_name)
-
-    # TODO: Pass reference_specs ***
-    # Added: from ranker.ranker import reference_specs
-    results = compare_to_references(spec, reference_specs)
+    # Identify bird using trained neural network
+    results = identify_bird(filepath)
 
     # Log the top identification result to user history
     if results:
@@ -136,7 +134,7 @@ def analyze():
     return render_template(
         'results.html',
         # *** needs plot_spectogram to save file to static/uploads/
-        spectrogram_image=f"uploads/{bird_name}_spectrogram.png",
+        spectrogram_image="uploads/uploaded_call_spectrogram.png",
         results=results
     )
 
