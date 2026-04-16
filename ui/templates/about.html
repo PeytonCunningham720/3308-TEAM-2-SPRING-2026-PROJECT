@@ -3,21 +3,32 @@
 <head>
     <title>About Page</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
 <body>
 
 <!--Add nav bar-->
 <nav>
-    <a href="/">Home</a> |
-    <a href="/upload">Upload</a> |
-    <a href="/about">About</a>
-    {% if session.get('user_id') %}
-        | <a href="/library">My Library</a> |
-        Logged in as <strong>{{ session.get('username') }}</strong> |
-        <a href="/logout">Logout</a>
-    {% else %}
-        | <a href="/login">Login</a> | <a href="/register">Register</a>
-    {% endif %}
+    <div class="nav-left">
+        <span class="nav-logo"><a href="/" class="nav-logo">Cawler ID</a></span>
+        <a href="/">Home</a>
+        <a href="/upload">Upload</a>
+        <a href="/about">About</a>
+        {% if session.get('user_id') %}
+            <a href="/library">My Library</a>
+        {% endif %}
+    </div>
+
+    <div class="nav-right">
+        {% if session.get('user_id') %}
+            <span class="nav-user">Logged in as <strong>{{ session.get('username') }}</strong></span>
+            <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        {% endif %}
+    </div>
 </nav>
 <hr>
 
@@ -25,10 +36,11 @@
     <h1>About Cawler ID</h1>
 
     <h2>What It Does</h2>
-    <p>Cawler ID identifies birds from their calls using spectrogram analysis.</p>
+    <p>Cawler ID is a web app that identifies bird species from audio recordings uploaded by the user.</p>
 
     <h2>How It Works</h2>
-    <p>We convert audio into a visual spectrogram and compare it to known species.</p>
+    <p>We convert your audio into a spectrogram, extract frequency‑domain features, and compare them to a dataset of known species. 
+    The system returns the closest matches based on similarity scoring and spectral shape alignment.</p>
 </main>
 
 </body>

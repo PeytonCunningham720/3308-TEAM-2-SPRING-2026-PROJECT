@@ -5,11 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Cawler ID</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
 <body>
-    <nav>
-        <a href="/">Home</a> | <a href="/upload">Upload</a> | <a href="/about">About</a>
-    </nav>
+<nav>
+    <div class="nav-left">
+        <span class="nav-logo"><a href="/" class="nav-logo">Cawler ID</a></span>
+        <a href="/">Home</a>
+        <a href="/upload">Upload</a>
+        <a href="/about">About</a>
+        {% if session.get('user_id') %}
+            <a href="/library">My Library</a>
+        {% endif %}
+    </div>
+
+    <div class="nav-right">
+        {% if session.get('user_id') %}
+            <span class="nav-user">Logged in as <strong>{{ session.get('username') }}</strong></span>
+            <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        {% endif %}
+    </div>
+</nav>
 
     <div class="auth-container">
         <h2>Register</h2>
@@ -23,17 +43,17 @@
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" required>
             </div>
-
+            <br>
             <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" required>
             </div>
-
+            <br>
             <div class="form-group">
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required>
             </div>
-
+            <br>
             <button type="submit" class="btn">Register</button>
         </form>
 

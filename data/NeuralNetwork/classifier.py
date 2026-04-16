@@ -1,13 +1,17 @@
 import numpy as np
 import os
+import sys
+
+_NN_DIR      = os.path.dirname(os.path.abspath(__file__))
+_PROJECT_DIR = os.path.dirname(os.path.dirname(_NN_DIR))
+sys.path.insert(0, _NN_DIR)
+sys.path.insert(0, _PROJECT_DIR)
+
 from dataset_builder import generate_numpy_spec # renamed for clarity
 from nn import NeuralNetwork
 
-import sys
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-MODEL_PATH = "data/model/bird_nn.npy"
-LABELS_PATH = "data/model/labels.npy"
+MODEL_PATH  = os.path.join(_PROJECT_DIR, "data", "model", "bird_nn.npy")
+LABELS_PATH = os.path.join(_PROJECT_DIR, "data", "model", "labels.npy")
 TARGET_COLS = 32 # be sure this agrees with nn_trainer so there is no size conflict
 
 TESTS_PATH = "data/test" # for new loop

@@ -18,6 +18,9 @@ Dependencies:
     numpy
 """
 
+import os
+import matplotlib
+matplotlib.use('Agg')
 import librosa
 import librosa.display
 import matplotlib
@@ -61,8 +64,10 @@ def plot_spectrogram(S_db, bird_name="Unknown Bird"):
     plt.tight_layout()
     
     # Save as a PNG for the UI to display later
-    plt.savefig(f"{bird_name}_spectrogram.png")
-    plt.show()
+    output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ui", "static", "uploads")
+    os.makedirs(output_dir, exist_ok=True)
+    plt.savefig(os.path.join(output_dir, f"{bird_name}_spectrogram.png"))
+    plt.close()
 
 # --- INTEGRATION EXAMPLE ---
 # This mirrors how the pipeline will flow from the module to Peyton's ranker.
