@@ -8,7 +8,6 @@
 </head>
 <body>
 
-<!--Add nav bar-->
 <nav>
     <div class="nav-left">
         <span class="nav-logo"><a href="/" class="nav-logo">Cawler ID</a></span>
@@ -33,25 +32,36 @@
 <hr>
 
 <main>
-    <h1>{{ bird.common_name }}</h1>
-    <p><em>{{ bird.scientific_name }}</em></p>
 
+    <h1>{{ bird.common_name | replace('_', ' ') | title }}</h1>
+    <h3><em>{{ bird.scientific_name }}</em></h3>
+
+    {% if bird.ref_image %}
+        <img src="{{ url_for('static', filename=bird.ref_image) }}" 
+             alt="{{ bird.common_name }}" 
+             width="500"
+             style="border-radius: 8px; margin: 16px 0;">
+    {% endif %}
+
+    <h2>About</h2>
     <p>{{ bird.description }}</p>
 
-    <h2>Image</h2>
-    <img src="{{ url_for('static', filename=bird.ref_image) }}" width="400">
+    {% if bird.ref_audio_path %}
+        <h2>Example Audio</h2>
+        <audio controls>
+            <source src="{{ url_for('static', filename=bird.ref_audio_path) }}" type="audio/mpeg">
+        </audio>
+    {% endif %}
 
-    <h2>Example Audio</h2>
-    <audio controls>
-        <source src="{{ url_for('static', filename=bird.ref_audio_path) }}" type="audio/mpeg">
-    </audio>
+    {% if bird.ref_spec_path %}
+        <h2>Reference Spectrogram</h2>
+        <img src="{{ url_for('static', filename=bird.ref_spec_path) }}" width="500">
+    {% endif %}
 
-    <h2>Reference Spectrogram</h2>
-    <img src="{{ url_for('static', filename=bird.ref_spec_path) }}" width="500">
-    
     <br><br>
     <a href="/upload">Analyze Another Call</a>
+
 </main>
-    
+
 </body>
 </html>
