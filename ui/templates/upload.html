@@ -3,30 +3,41 @@
 <head>
     <title>Upload Page</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
 <body>
 
 <!--Add nav bar-->
 <nav>
-    <a href="/">Home</a> |
-    <a href="/upload">Upload</a> |
-    <a href="/about">About</a>
-    {% if session.get('user_id') %}
-        | <a href="/library">My Library</a> |
-        Logged in as <strong>{{ session.get('username') }}</strong> |
-        <a href="/logout">Logout</a>
-    {% else %}
-        | <a href="/login">Login</a> | <a href="/register">Register</a>
-    {% endif %}
+    <div class="nav-left">
+        <span class="nav-logo"><a href="/" class="nav-logo">Cawler ID</a></span>
+        <a href="/">Home</a>
+        <a href="/upload">Upload</a>
+        <a href="/about">About</a>
+        {% if session.get('user_id') %}
+            <a href="/library">My Library</a>
+        {% endif %}
+    </div>
+
+    <div class="nav-right">
+        {% if session.get('user_id') %}
+            <span class="nav-user">Logged in as <strong>{{ session.get('username') }}</strong></span>
+            <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        {% endif %}
+    </div>
 </nav>
 <hr>
 
 <main>
     <h1>Upload a Bird Call</h1>
-
+    
     <!-- Upload form sends audio file to /analyze -->
     <form action="/analyze" method="POST" enctype="multipart/form-data">
-        <label>Upload a bird call recording (MP3/WAV):</label><br><br>
+        <label>Upload a bird call recording (<strong>MP3/WAV</strong>):</label><br><br>
 
         <!-- File picker; name="audio_file" must match Flask request.files key -->
         <input type="file" name="audio_file" accept="audio/*" required><br><br>
@@ -38,7 +49,6 @@
 </main>
     
 <br>
-<a href="/">Back to Home</a>
     
 </body>
 </html>

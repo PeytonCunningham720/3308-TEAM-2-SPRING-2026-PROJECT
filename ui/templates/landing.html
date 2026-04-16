@@ -3,34 +3,41 @@
 <head>
     <title>Cawler ID</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
 <body>
 
 <!--Add nav bar-->
 <nav>
-    <a href="/">Home</a> |
-    <a href="/upload">Upload</a> |
-    <a href="/about">About</a>
-    {% if session.get('user_id') %}
-        | <a href="/library">My Library</a> |
-        Logged in as <strong>{{ session.get('username') }}</strong> |
-        <a href="/logout">Logout</a>
-    {% else %}
-        | <a href="/login">Login</a> | <a href="/register">Register</a>
-    {% endif %}
+    <div class="nav-left">  
+        <span class="nav-logo"><a href="/" class="nav-logo">Cawler ID</a></span>
+        <a href="/">Home</a>
+        <a href="/upload">Upload</a>
+        <a href="/about">About</a>
+        {% if session.get('user_id') %}
+            <a href="/library">My Library</a>
+        {% endif %}
+    </div>
+
+    <div class="nav-right">
+        {% if session.get('user_id') %}
+            <span class="nav-user">Logged in as <strong>{{ session.get('username') }}</strong></span>
+            <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        {% endif %}
+    </div>
 </nav>
 <hr>
     
-<main>
+<main class="hero-minimal">
     <h1>Cawler ID</h1>
-    <p>Bird-call identifier</p>
-    
-    <h2>How It Works</h2>
-    <p>Upload a bird call, we generate a spectrogram, compare it to known species, and show you the closest matches.</p>
-    
-    <a href="/upload"><button>Upload a Bird Call</button></a>
-    <br><br>
-    <a href="/about">About Cawler ID</a>
+    <h3 class="tagline">Identify birds by sound.</h3>
+    <br>
+    <p class="tagline">Upload a bird call recording, we generate a spectrogram, compare it to known species, and show you the closest matches.</p>
+    <a href="/upload" class="hero-btn">Start Identifying</a>
 </main>
     
 </body>
