@@ -115,6 +115,7 @@ def analyze():
 
     # Identify bird using trained neural network
     results = identify_bird(filepath)
+    results = [r for r in results if r["bird"] != "background_noise"]
 
     # Log the top identification result to user history
     if results:
