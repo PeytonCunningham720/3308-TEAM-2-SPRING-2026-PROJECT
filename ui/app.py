@@ -7,7 +7,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from database.db import get_bird_by_name, get_user_by_email, create_user, get_user_history, log_identification
 
 from spectrogram.spectrogram_generator import plot_spectrogram, generate_mel_spectrogram
-from ranker.ranker import compare_to_references, generate_mock_spectrogram, reference_specs
+from similarity_model.similarity_ranker import compare_to_references, get_reference_files
+reference_specs = get_reference_files()
 
 app = Flask(__name__)
 # Configure uploads folder:
